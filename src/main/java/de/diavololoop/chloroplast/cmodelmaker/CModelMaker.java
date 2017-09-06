@@ -131,6 +131,8 @@ public class CModelMaker extends Application{
         sideTexture.getItems().add(Texture.NONE);
         sideTextureRotation.getItems().addAll(new Integer(0), new Integer(90), new Integer(180), new Integer(270));
 
+        ModelViewer modelviewXY = new ModelViewer(viewXY, ModelViewer.Target.XY);
+
     }
 
     private void linkFields(){
@@ -399,28 +401,7 @@ public class CModelMaker extends Application{
         }
 
     }
-    /*public void setTexturePreview(DataModelBlock block){
-        //if(true)return;
 
-        System.out.println("Coloring");
-
-        Map<FACING, GraphicsContext> context = new HashMap<FACING, GraphicsContext>();
-
-        texturePreview.forEach((face, canvas) -> context.put(face, canvas.getGraphicsContext2D()));
-
-        if(block == null){
-
-            texturePreview.forEach((face, canvas) -> {
-                GraphicsContext c = context.get(face);
-                c.setFill(faceColor.get(face));
-                c.fillRect(0,0, canvas.getWidth(), canvas.getHeight());
-
-                c.setStroke(Color.BLACK);
-                c.strokeText(face.toString().substring(0, 1).toUpperCase(), 5, 20);
-            });
-
-        }
-    }*/
 
     @FXML private Pane wrapperNorth;
     @FXML private Pane wrapperEast;
