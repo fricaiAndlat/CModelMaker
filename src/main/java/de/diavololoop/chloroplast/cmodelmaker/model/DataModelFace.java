@@ -1,7 +1,7 @@
 package de.diavololoop.chloroplast.cmodelmaker.model;
 
 /**
- * Created by gast2 on 05.09.17.
+ * Created by Chloroplast on 05.09.17.
  */
 public class DataModelFace {
 
@@ -16,5 +16,13 @@ public class DataModelFace {
     public String texture;
 
     public int rotation;
+
+    public DataModelFace clone(){
+        DataModelFace face = new DataModelFace();
+        face.rotation = rotation;
+        face.texture = texture;
+        face.uv = new double[]{uv[0], uv[1], uv[2], uv[3]};
+        return face;
+    }
 
 }

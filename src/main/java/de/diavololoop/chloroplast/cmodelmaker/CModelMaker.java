@@ -26,8 +26,7 @@ import java.util.Optional;
  */
 public class CModelMaker extends Application{
 
-
-    public enum FACING {NORTH, EAST, SOUTH, WEST, UP, DOWN};
+    public enum FACING {NORTH, EAST, SOUTH, WEST, UP, DOWN}
 
     public static void main(String[] args){
 
@@ -101,7 +100,7 @@ public class CModelMaker extends Application{
     Map <FACING, Color> faceColor   = new HashMap<FACING, Color>();
 
     DataModelBlock currentModelBlock;
-    DataModel      currentModel;
+    DataModel      currentModel = new DataModel();
 
     private void initFields() {
 
@@ -184,11 +183,76 @@ public class CModelMaker extends Application{
         cubePositionY.focusedProperty().addListener(prop -> rewriteBlockBounds());
         cubePositionZ.focusedProperty().addListener(prop -> rewriteBlockBounds());
 
+        uvx0.setOnAction(event -> rewriteFaceUV());
+        uvy0.setOnAction(event -> rewriteFaceUV());
+        uvx1.setOnAction(event -> rewriteFaceUV());
+        uvy1.setOnAction(event -> rewriteFaceUV());
+
+        uvx0.focusedProperty().addListener(prop -> rewriteFaceUV());
+        uvy0.focusedProperty().addListener(prop -> rewriteFaceUV());
+        uvx1.focusedProperty().addListener(prop -> rewriteFaceUV());
+        uvy1.focusedProperty().addListener(prop -> rewriteFaceUV());
+
+
+        cubeName.setOnAction(event -> renameCurrent(cubeName.getText()));
+        cubeName.focusedProperty().addListener(prop ->  renameCurrent(cubeName.getText()));
+
         sideMenu.getSelectionModel().selectedItemProperty().addListener((observable, o, t1) -> {
             updateBlockInfo();
             updateTexturePreview();
         });
+
+        sideTexture.getSelectionModel().selectedItemProperty().addListener(  (observable, o, t1) -> setFaceTexture(t1)  );
+        sideTextureRotation.getSelectionModel().selectedItemProperty().addListener(  (observable, o, t1) -> setFaceRotation(t1)  );
     }
+
+    private void setFaceRotation(int faceRotation) {
+        if(currentModelBlock == null){
+            return;
+        }
+        FACING f = sideMenu.getSelectionModel().getSelectedItem();
+        DataModelFace face = currentModelBlock.faces.get(f.toString().toLowerCase());
+
+        face.rotation = faceRotation;
+    }
+
+    private void setFaceTexture(Texture faceTexture) {
+        if(currentModelBlock == null){
+            return;
+        }
+        FACING f = sideMenu.getSelectionModel().getSelectedItem();
+        DataModelFace face = currentModelBlock.faces.get(f.toString().toLowerCase());
+
+        face.texture = faceTexture.registerName;
+
+        updateTexturePreview();
+    }
+
+    private void rewriteFaceUV() {
+        if(currentModelBlock == null){
+            return;
+        }
+        FACING f = sideMenu.getSelectionModel().getSelectedItem();
+        DataModelFace face = currentModelBlock.faces.get(f.toString().toLowerCase());
+
+        int x0 = uvx0.getText().matches("\\d+\\.?\\d*") ? (int)(10 * Double.parseDouble(uvx0.getText())) : 0;
+        int y0 = uvy0.getText().matches("\\d+\\.?\\d*") ? (int)(10 * Double.parseDouble(uvy0.getText())) : 0;
+        int x1 = uvx1.getText().matches("\\d+\\.?\\d*") ? (int)(10 * Double.parseDouble(uvx1.getText())) : 0;
+        int y1 = uvy1.getText().matches("\\d+\\.?\\d*") ? (int)(10 * Double.parseDouble(uvy1.getText())) : 0;
+
+        uvx0.setText( x0%10 == 0 ? ""+(x0/10) : ""+(x0/10d));
+        uvy0.setText( y0%10 == 0 ? ""+(y0/10) : ""+(y0/10d));
+        uvx1.setText( x1%10 == 0 ? ""+(x1/10) : ""+(x1/10d));
+        uvy1.setText( y1%10 == 0 ? ""+(y1/10) : ""+(y1/10d));
+
+        face.uv[0] = x0/10d;
+        face.uv[1] = y0/10d;
+        face.uv[2] = x1/10d;
+        face.uv[3] = y1/10d;
+
+        updateTexturePreview();
+    }
+
 
     private void rewriteBlockBounds() {
         if(currentModelBlock == null){
@@ -233,11 +297,19 @@ public class CModelMaker extends Application{
         sideTexture.getSelectionModel().selectFirst();
         sideTexture.getSelectionModel().select(Texture.get(face.texture));
 
-        uvx0.setText(""+face.uv[0]);
-        uvy0.setText(""+face.uv[1]);
-        uvx1.setText(""+face.uv[2]);
-        uvy1.setText(""+face.uv[3]);
+        uvChange(0,  0);
+        uvChange(1,  0);
+        uvChange(2,  0);
+        uvChange(3,  0);
 
+    }
+
+    private void renameCurrent(String text) {
+        if(currentModelBlock == null || currentModelBlock.name.equals(text)){
+            return;
+        }
+        currentModelBlock.name = text;
+        cubeList.refresh();
     }
 
     private void updateTexturePreview(){
@@ -284,7 +356,6 @@ public class CModelMaker extends Application{
                     context.setLineWidth(1.5);
                     context.strokeRect(x0*canvas.getWidth()-1.5, y0*canvas.getHeight()-1.5, (x1-x0)*canvas.getHeight()+3, (y1-y0)*canvas.getWidth()+3);
 
-
                 }
 
 
@@ -297,6 +368,9 @@ public class CModelMaker extends Application{
         }
 
         try {
+
+            currentModel.textures.clear();
+            Texture.IMAGES.forEach(  (key,val) ->  currentModel.textures.put(val.registerName.substring(1), "blocks/"+val.name) );
             currentModel.save(file);
 
         } catch (Exception e) {
@@ -348,44 +422,44 @@ public class CModelMaker extends Application{
         }
     }*/
 
-    @FXML Pane wrapperNorth;
-    @FXML Pane wrapperEast;
-    @FXML Pane wrapperSouth;
-    @FXML Pane wrapperWest;
-    @FXML Pane wrapperUp;
-    @FXML Pane wrapperDown;
+    @FXML private Pane wrapperNorth;
+    @FXML private Pane wrapperEast;
+    @FXML private Pane wrapperSouth;
+    @FXML private Pane wrapperWest;
+    @FXML private Pane wrapperUp;
+    @FXML private Pane wrapperDown;
 
-    @FXML Canvas canvasNorth;
-    @FXML Canvas canvasEast;
-    @FXML Canvas canvasSouth;
-    @FXML Canvas canvasWest;
-    @FXML Canvas canvasUp;
-    @FXML Canvas canvasDown;
+    @FXML private Canvas canvasNorth;
+    @FXML private Canvas canvasEast;
+    @FXML private Canvas canvasSouth;
+    @FXML private Canvas canvasWest;
+    @FXML private Canvas canvasUp;
+    @FXML private Canvas canvasDown;
 
-    @FXML Pane viewXY;
-    @FXML Pane viewYZ;
-    @FXML Pane viewXZ;
+    @FXML private Pane viewXY;
+    @FXML private Pane viewYZ;
+    @FXML private Pane viewXZ;
 
-    @FXML ListView<DataModelBlock> cubeList;
+    @FXML private ListView<DataModelBlock> cubeList;
 
-    @FXML TextField cubeSizeX;
-    @FXML TextField cubeSizeY;
-    @FXML TextField cubeSizeZ;
-    @FXML TextField cubePositionX;
-    @FXML TextField cubePositionY;
-    @FXML TextField cubePositionZ;
+    @FXML private TextField cubeSizeX;
+    @FXML private TextField cubeSizeY;
+    @FXML private TextField cubeSizeZ;
+    @FXML private TextField cubePositionX;
+    @FXML private TextField cubePositionY;
+    @FXML private TextField cubePositionZ;
 
-    @FXML TextField cubeName;
-    @FXML TextField cubeGroup;
+    @FXML private TextField cubeName;
+    @FXML private TextField cubeGroup;
 
-    @FXML ChoiceBox<FACING> sideMenu;
-    @FXML ChoiceBox<Texture> sideTexture;
-    @FXML ChoiceBox<Integer> sideTextureRotation;
+    @FXML private ChoiceBox<FACING>  sideMenu;
+    @FXML private ChoiceBox<Texture> sideTexture;
+    @FXML private ChoiceBox<Integer> sideTextureRotation;
 
-    @FXML TextField uvx0;
-    @FXML TextField uvx1;
-    @FXML TextField uvy0;
-    @FXML TextField uvy1;
+    @FXML private TextField uvx0;
+    @FXML private TextField uvx1;
+    @FXML private TextField uvy0;
+    @FXML private TextField uvy1;
 
     /** real dirty part, i'm sorry for that */
     @FXML public void onAddSizeX(){if(currentModelBlock==null){return;} cubeSizeX.setText((++currentModelBlock.to[0] - currentModelBlock.from[0])+"");}
@@ -404,17 +478,66 @@ public class CModelMaker extends Application{
     @FXML public void onRemPosY(){if(currentModelBlock==null){return;} cubePositionY.setText(--currentModelBlock.from[1]+"");}
     @FXML public void onRemPosZ(){if(currentModelBlock==null){return;} cubePositionZ.setText(--currentModelBlock.from[2]+"");}
 
-    @FXML public void onCubeCopy(){}
-    @FXML public void onCubeRemove(){}
-    @FXML public void onCubeAdd(){}
+    @FXML public void onCubeCopy(){
+        if(currentModelBlock == null){
+            return;
+        }
+        DataModelBlock copy = currentModelBlock.clone();
+        cubeList.getItems().add(copy);
+        currentModel.elements.add(copy);
+        updateTexturePreview();
+    }
+    @FXML public void onCubeRemove(){
+        if(currentModelBlock == null){
+            return;
+        }
+        currentModel.elements.remove(currentModelBlock);
+        cubeList.getItems().remove(cubeList.getSelectionModel().getSelectedItem());
+        cubeList.getSelectionModel().clearSelection();
+        currentModelBlock = null;
+        updateTexturePreview();
+    }
+    @FXML public void onCubeAdd(){
+        DataModelBlock block = new DataModelBlock();
+        currentModel.elements.add(block);
+        cubeList.getItems().add(block);
+    }
 
-    @FXML public void onUVx0Add(){}
-    @FXML public void onUVx1Add(){}
-    @FXML public void onUVy0Add(){}
-    @FXML public void onUVy1Add(){}
+    @FXML public void onUVx0Add(){uvChange(0,  1);}
+    @FXML public void onUVy0Add(){uvChange(1,  1);}
+    @FXML public void onUVx1Add(){uvChange(2,  1);}
+    @FXML public void onUVy1Add(){uvChange(3,  1);}
 
-    @FXML public void onUVx0Rem(){}
-    @FXML public void onUVx1Rem(){}
-    @FXML public void onUVy0Rem(){}
-    @FXML public void onUVy1Rem(){}
+    @FXML public void onUVx0Rem(){uvChange(0, -1);}
+    @FXML public void onUVy0Rem(){uvChange(1, -1);}
+    @FXML public void onUVx1Rem(){uvChange(2, -1);}
+    @FXML public void onUVy1Rem(){uvChange(3, -1);}
+
+    public void uvChange(int batch, int delta){
+        if(currentModelBlock==null){
+            return;
+        }
+
+        FACING f = sideMenu.getSelectionModel().getSelectedItem();
+        DataModelFace face = currentModelBlock.faces.get(f.toString().toLowerCase());
+        TextField field;
+        if(batch == 0){
+            field = uvx0;
+        }else if(batch == 1){
+            field = uvy0;
+        }else if(batch == 2){
+            field = uvx1;
+        }else{
+            field = uvy1;
+        }
+
+        face.uv[batch] += delta;
+
+        int value = (int)(face.uv[batch] * 10);
+
+        field.setText( value%10==0 ? Integer.toString(value/10) : Double.toString(face.uv[batch]));
+
+        updateTexturePreview();
+
+    }
 }

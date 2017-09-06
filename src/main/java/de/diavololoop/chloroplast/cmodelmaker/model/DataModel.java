@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import de.diavololoop.chloroplast.cmodelmaker.CModelMaker;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +52,11 @@ public class DataModel {
 
         writer.flush();
         writer.close();
+    }
+
+    public DataModel(){
+        textures = new HashMap<String, String>();
+        elements = new LinkedList<DataModelBlock>();
     }
 
     public String credit = "made with CModelMaker by Chloroplast";
