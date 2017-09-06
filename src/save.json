@@ -1,0 +1,161 @@
+{
+  "credit": "Made with Blockbench, a free, modern block model editor by JannisX11",
+  "parent": "block/block",
+  "textures": {
+    "0": "technica:blocks/tree_tap",
+    "particle": "technica:blocks/tree_tap"
+  },
+  "elements": [
+    {
+      "name": "cube0",
+      "from": [
+        7,
+        9,
+        4
+      ],
+      "to": [
+        9,
+        11,
+        6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5.0,
+            0.0,
+            6.0,
+            1.0
+          ],
+          "texture": "#0",
+          "rotation": 0
+        },
+        "east": {
+          "uv": [
+            4.0,
+            1.0,
+            5.0,
+            2.0
+          ],
+          "texture": "#0",
+          "rotation": 90
+        },
+        "south": {
+          "uv": [
+            0.0,
+            1.0,
+            1.0,
+            2.0
+          ],
+          "texture": "#0",
+          "rotation": 0
+        },
+        "west": {
+          "uv": [
+            4.0,
+            1.0,
+            5.0,
+            2.0
+          ],
+          "texture": "#0",
+          "rotation": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            0.0,
+            2.0,
+            2.0
+          ],
+          "texture": "#missing",
+          "rotation": 0
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            1.0,
+            1.0
+          ],
+          "texture": "#0",
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "cube1",
+      "from": [
+        7,
+        11,
+        0
+      ],
+      "to": [
+        9,
+        13,
+        6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3.0,
+            1.0,
+            4.0,
+            2.0
+          ],
+          "texture": "#0",
+          "rotation": 0
+        },
+        "east": {
+          "uv": [
+            0.0,
+            0.0,
+            3.0,
+            1.0
+          ],
+          "texture": "#0",
+          "rotation": 180
+        },
+        "south": {
+          "uv": [
+            5.0,
+            1.0,
+            6.0,
+            2.0
+          ],
+          "texture": "#0",
+          "rotation": 0
+        },
+        "west": {
+          "uv": [
+            0.0,
+            0.0,
+            3.0,
+            1.0
+          ],
+          "texture": "#0",
+          "rotation": 0
+        },
+        "up": {
+          "uv": [
+            0.0,
+            1.0,
+            3.0,
+            2.0
+          ],
+          "texture": "#0",
+          "rotation": 90
+        },
+        "down": {
+          "uv": [
+            3.0,
+            0.0,
+            6.0,
+            1.0
+          ],
+          "texture": "#0",
+          "rotation": 0
+        }
+      }
+    }
+  ],
+  "ambientocclusion": false
+}
