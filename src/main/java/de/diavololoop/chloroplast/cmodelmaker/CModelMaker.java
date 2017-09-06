@@ -171,6 +171,18 @@ public class CModelMaker extends Application{
         });
 
         cubeSizeX.setOnAction(event -> rewriteBlockBounds());
+        cubeSizeY.setOnAction(event -> rewriteBlockBounds());
+        cubeSizeZ.setOnAction(event -> rewriteBlockBounds());
+        cubePositionX.setOnAction(event -> rewriteBlockBounds());
+        cubePositionY.setOnAction(event -> rewriteBlockBounds());
+        cubePositionZ.setOnAction(event -> rewriteBlockBounds());
+
+        cubeSizeX.focusedProperty().addListener(prop -> rewriteBlockBounds());
+        cubeSizeY.focusedProperty().addListener(prop -> rewriteBlockBounds());
+        cubeSizeZ.focusedProperty().addListener(prop -> rewriteBlockBounds());
+        cubePositionX.focusedProperty().addListener(prop -> rewriteBlockBounds());
+        cubePositionY.focusedProperty().addListener(prop -> rewriteBlockBounds());
+        cubePositionZ.focusedProperty().addListener(prop -> rewriteBlockBounds());
 
         sideMenu.getSelectionModel().selectedItemProperty().addListener((observable, o, t1) -> {
             updateBlockInfo();
@@ -183,12 +195,12 @@ public class CModelMaker extends Application{
             return;
         }
 
-        if(!cubePositionX.getText().matches("\\d\\d")){ cubePositionX.setText("0"); }
-        if(!cubePositionY.getText().matches("\\d\\d")){ cubePositionY.setText("0"); }
-        if(!cubePositionZ.getText().matches("\\d\\d")){ cubePositionZ.setText("0"); }
-        if(!cubeSizeX.getText().matches("\\d\\d")){ cubeSizeX.setText("0"); }
-        if(!cubeSizeY.getText().matches("\\d\\d")){ cubeSizeY.setText("0"); }
-        if(!cubeSizeZ.getText().matches("\\d\\d")){ cubeSizeZ.setText("0"); }
+        if(!cubePositionX.getText().matches("\\d\\d?")){ cubePositionX.setText("0"); }
+        if(!cubePositionY.getText().matches("\\d\\d?")){ cubePositionY.setText("0"); }
+        if(!cubePositionZ.getText().matches("\\d\\d?")){ cubePositionZ.setText("0"); }
+        if(!cubeSizeX.getText().matches("\\d\\d?")){ cubeSizeX.setText("0"); }
+        if(!cubeSizeY.getText().matches("\\d\\d?")){ cubeSizeY.setText("0"); }
+        if(!cubeSizeZ.getText().matches("\\d\\d?")){ cubeSizeZ.setText("0"); }
 
         currentModelBlock.from[0] = Integer.parseInt(cubePositionX.getText());
         currentModelBlock.from[1] = Integer.parseInt(cubePositionY.getText());
@@ -375,21 +387,22 @@ public class CModelMaker extends Application{
     @FXML TextField uvy0;
     @FXML TextField uvy1;
 
-    @FXML public void onAddSizeX(){root.layout();}
-    @FXML public void onAddSizeY(){}
-    @FXML public void onAddSizeZ(){}
+    /** real dirty part, i'm sorry for that */
+    @FXML public void onAddSizeX(){if(currentModelBlock==null){return;} cubeSizeX.setText((++currentModelBlock.to[0] - currentModelBlock.from[0])+"");}
+    @FXML public void onAddSizeY(){if(currentModelBlock==null){return;} cubeSizeY.setText((++currentModelBlock.to[1] - currentModelBlock.from[1])+"");}
+    @FXML public void onAddSizeZ(){if(currentModelBlock==null){return;} cubeSizeZ.setText((++currentModelBlock.to[2] - currentModelBlock.from[2])+"");}
 
-    @FXML public void onAddPosX(){}
-    @FXML public void onAddPosY(){}
-    @FXML public void onAddPosZ(){}
+    @FXML public void onAddPosX(){if(currentModelBlock==null){return;} cubePositionX.setText(++currentModelBlock.from[0]+"");}
+    @FXML public void onAddPosY(){if(currentModelBlock==null){return;} cubePositionY.setText(++currentModelBlock.from[1]+"");}
+    @FXML public void onAddPosZ(){if(currentModelBlock==null){return;} cubePositionZ.setText(++currentModelBlock.from[2]+"");}
 
-    @FXML public void onRemSizeX(){}
-    @FXML public void onRemSizeY(){}
-    @FXML public void onRemSizeZ(){}
+    @FXML public void onRemSizeX(){if(currentModelBlock==null){return;} cubeSizeX.setText((--currentModelBlock.to[0] - currentModelBlock.from[0])+"");}
+    @FXML public void onRemSizeY(){if(currentModelBlock==null){return;} cubeSizeY.setText((--currentModelBlock.to[1] - currentModelBlock.from[1])+"");}
+    @FXML public void onRemSizeZ(){if(currentModelBlock==null){return;} cubeSizeZ.setText((--currentModelBlock.to[2] - currentModelBlock.from[2])+"");}
 
-    @FXML public void onRemPosX(){}
-    @FXML public void onRemPosY(){}
-    @FXML public void onRemPosZ(){}
+    @FXML public void onRemPosX(){if(currentModelBlock==null){return;} cubePositionX.setText(--currentModelBlock.from[0]+"");}
+    @FXML public void onRemPosY(){if(currentModelBlock==null){return;} cubePositionY.setText(--currentModelBlock.from[1]+"");}
+    @FXML public void onRemPosZ(){if(currentModelBlock==null){return;} cubePositionZ.setText(--currentModelBlock.from[2]+"");}
 
     @FXML public void onCubeCopy(){}
     @FXML public void onCubeRemove(){}
