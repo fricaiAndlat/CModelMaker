@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.PerspectiveCamera?>
+<?import javafx.scene.SubScene?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
@@ -16,12 +19,14 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <!-- specified in code: fx:controller="de.diavololoop.chloroplast.cmodelmaker.CModelMaker"-->
-<BorderPane  maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="800.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="800.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1">
    <center>
       <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="900.0" BorderPane.alignment="CENTER">
          <children>
@@ -69,6 +74,20 @@
                         <Pane fx:id="viewXZ" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="NEVER" />
                      </children>
                   </HBox>
+                  <Pane prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <Group fx:id="viewMain">
+                           <children>
+                              <PerspectiveCamera fx:id="viewMainCam" />
+                              <SubScene height="200.0" width="200.0">
+                                <root>
+                                  <Region />
+                                </root>
+                              </SubScene>
+                           </children>
+                        </Group>
+                     </children>
+                  </Pane>
                </children>
             </VBox>
             <Separator orientation="VERTICAL" prefHeight="200.0" HBox.hgrow="NEVER" />

@@ -19,28 +19,40 @@ public class ModelViewer {
 
     Group axis;
 
-    public ModelViewer(Pane root, Target t){
-        /*scene = new SubScene(root, root.getWidth(), root.getHeight(), true, SceneAntialiasing.BALANCED);
-        scene.widthProperty().bind(root.widthProperty());
-        scene.heightProperty().bind(root.heightProperty());*/
+    public ModelViewer(Group root, Camera cam){
 
-        if(t == Target.MODEL || true){
-            camera = new PerspectiveCamera(true);
-        }else{
-            camera = new ParallelCamera();
-        }
+        Group r = new Group();
+
 
         PhongMaterial materialRed = new PhongMaterial();
         materialRed.setDiffuseColor(Color.RED);
 
-        Box axisX = new Box(16, 1, 1);
+        PhongMaterial materialGreen = new PhongMaterial();
+        materialGreen.setDiffuseColor(Color.GREEN);
+
+        PhongMaterial materialBlue = new PhongMaterial();
+        materialBlue.setDiffuseColor(Color.BLUE);
+
+        Box axisX = new Box(16, 0.1, 0.1);
         axisX.setMaterial(materialRed);
+        axisX.setTranslateX(8);
+
+        Box axisY = new Box(0.1, 16, 0.1);
+        axisY.setMaterial(materialGreen);
+        axisY.setTranslateY(-8);
+
+        Box axisZ = new Box(0.1, 0.1, 16);
+        axisZ.setMaterial(materialBlue);
+        axisZ.setTranslateZ(8);
+
 
         axis = new Group();
-        axis.getChildren().add(axisX);
+        axis.getChildren().addAll(axisX, axisY, axisZ);
 
-        root.getChildren().add(axis);
-        root.getChildren().add(camera);
+        r.getChildren().add(axis);
+
+        root.getChildren().add(r);
+
     }
 
 }

@@ -6,6 +6,8 @@ import de.diavololoop.chloroplast.cmodelmaker.model.DataModelFace;
 import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Group;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -131,7 +133,7 @@ public class CModelMaker extends Application{
         sideTexture.getItems().add(Texture.NONE);
         sideTextureRotation.getItems().addAll(new Integer(0), new Integer(90), new Integer(180), new Integer(270));
 
-        ModelViewer modelviewXY = new ModelViewer(viewXY, ModelViewer.Target.XY);
+        ModelViewer modelviewXY = new ModelViewer(viewMain, viewMainCam);
 
     }
 
@@ -402,6 +404,9 @@ public class CModelMaker extends Application{
 
     }
 
+    @FXML private PerspectiveCamera viewMainCam;
+
+    @FXML private Group viewMain;
 
     @FXML private Pane wrapperNorth;
     @FXML private Pane wrapperEast;
