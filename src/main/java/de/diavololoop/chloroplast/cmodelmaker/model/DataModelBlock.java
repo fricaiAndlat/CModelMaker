@@ -42,4 +42,8 @@ public class DataModelBlock {
         return block;
     }
 
+    public int getSizeX(){  return to[0] - from[0];}
+    public int getSizeY(){  return to[1] - from[1];}
+    public int getSizeZ(){  return to[2] - from[2];}
+
 }

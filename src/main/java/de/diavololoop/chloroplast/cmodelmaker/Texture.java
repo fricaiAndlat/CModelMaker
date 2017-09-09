@@ -46,7 +46,7 @@ public class Texture {
 
     public Texture(File file) {
 
-        this(new Image("file:"+file, 128, 128, true, false), file.getName().substring(0, file.getName().lastIndexOf(".")));
+        this(new Image("file:"+file, 512, 512, true, false), file.getName().substring(0, file.getName().lastIndexOf(".")));
 
     }
 

@@ -5,10 +5,7 @@ import com.google.gson.GsonBuilder;
 import de.diavololoop.chloroplast.cmodelmaker.CModelMaker;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by gast2 on 05.09.17.
@@ -26,10 +23,18 @@ public class DataModel {
         Gson gson = gsonBuilder.create();
         DataModel model = gson.fromJson(reader, DataModel.class);
 
+        Set<String> knownNames = new HashSet<>();
+
         model.elements.forEach(dmBlock -> {
 
+            if(knownNames.contains(dmBlock.name)){
+                dmBlock.name = ""+System.nanoTime();
+            }
+
+            knownNames.add(dmBlock.name);
+
             for(CModelMaker.FACING face: CModelMaker.FACING.values()){
-                if(dmBlock.faces.containsKey(face.toString())){
+                if(!dmBlock.faces.containsKey(face.toString().toLowerCase())){
                     dmBlock.faces.put(face.toString().toLowerCase(), new DataModelFace());
                 }
             }

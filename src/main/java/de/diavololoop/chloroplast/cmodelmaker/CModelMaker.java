@@ -3,13 +3,11 @@ package de.diavololoop.chloroplast.cmodelmaker;
 import de.diavololoop.chloroplast.cmodelmaker.model.DataModel;
 import de.diavololoop.chloroplast.cmodelmaker.model.DataModelBlock;
 import de.diavololoop.chloroplast.cmodelmaker.model.DataModelFace;
+import de.diavololoop.chloroplast.cmodelmaker.view.ModelViewer;
 import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
-import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
-import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -98,12 +96,17 @@ public class CModelMaker extends Application{
 
     BorderPane root;
 
-    Map <FACING, Pane> wrapperMap  = new HashMap<FACING, Pane>();
-    Map <FACING, Canvas> canvasMap = new HashMap<FACING, Canvas>();
-    Map <FACING, Color> faceColor   = new HashMap<FACING, Color>();
+    public final Map <FACING, Pane> wrapperMap  = new HashMap<FACING, Pane>();
+    public final Map <FACING, Canvas> canvasMap = new HashMap<FACING, Canvas>();
+    public final static Map <FACING, Color> faceColor   = new HashMap<FACING, Color>();
 
     DataModelBlock currentModelBlock;
     DataModel      currentModel = new DataModel();
+
+    ModelViewer modelViewMain;
+    ModelViewer modelViewXY;
+    ModelViewer modelViewYZ;
+    ModelViewer modelViewXZ;
 
     private void initFields() {
 
@@ -134,7 +137,10 @@ public class CModelMaker extends Application{
         sideTexture.getItems().add(Texture.NONE);
         sideTextureRotation.getItems().addAll(new Integer(0), new Integer(90), new Integer(180), new Integer(270));
 
-        ModelViewer modelViewMain = new ModelViewer(viewMain, viewMainPane);
+        modelViewMain = new ModelViewer(viewMainPane, ModelViewer.Target.MODEL);
+        modelViewXY   = new ModelViewer(viewXY, ModelViewer.Target.XY);
+        modelViewYZ   = new ModelViewer(viewYZ, ModelViewer.Target.YZ);
+        modelViewXZ   = new ModelViewer(viewXZ, ModelViewer.Target.XZ);
 
     }
 
@@ -153,9 +159,6 @@ public class CModelMaker extends Application{
             //pane.setBackground(new Background(new BackgroundFill(Color.color(Math.random(), Math.random(), Math.random()), null, null)));
         }
 
-        viewMainScene.heightProperty().bind(viewMainPane.heightProperty());
-        viewMainScene.widthProperty().bind(viewMainPane.widthProperty());
-
         viewXY.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, BorderWidths.DEFAULT)));
         viewYZ.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, BorderWidths.DEFAULT)));
         viewXZ.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, BorderWidths.DEFAULT)));
@@ -166,6 +169,8 @@ public class CModelMaker extends Application{
 
         cubeList.getSelectionModel()
                 .selectedItemProperty().addListener((observable, o, t1) -> {
+
+            if(t1 == null)return;
 
             Optional<DataModelBlock> block = currentModel.elements.stream().filter(element -> element.name.equals(t1.toString())).findAny();
             if(block.isPresent()){
@@ -206,8 +211,8 @@ public class CModelMaker extends Application{
         cubeName.focusedProperty().addListener(prop ->  renameCurrent(cubeName.getText()));
 
         sideMenu.getSelectionModel().selectedItemProperty().addListener((observable, o, t1) -> {
-            updateBlockInfo();
             updateTexturePreview();
+            updateBlockInfo();
         });
 
         sideTexture.getSelectionModel().selectedItemProperty().addListener(  (observable, o, t1) -> setFaceTexture(t1)  );
@@ -222,10 +227,11 @@ public class CModelMaker extends Application{
         DataModelFace face = currentModelBlock.faces.get(f.toString().toLowerCase());
 
         face.rotation = faceRotation;
+        viewUpdateTexRotation();
     }
 
     private void setFaceTexture(Texture faceTexture) {
-        if(currentModelBlock == null){
+        if(currentModelBlock == null || faceTexture == null){
             return;
         }
         FACING f = sideMenu.getSelectionModel().getSelectedItem();
@@ -234,6 +240,8 @@ public class CModelMaker extends Application{
         face.texture = faceTexture.registerName;
 
         updateTexturePreview();
+        viewUpdateTex();
+
     }
 
     private void rewriteFaceUV() {
@@ -259,6 +267,7 @@ public class CModelMaker extends Application{
         face.uv[3] = y1/10d;
 
         updateTexturePreview();
+        viewUpdateTex();
     }
 
 
@@ -281,6 +290,33 @@ public class CModelMaker extends Application{
         currentModelBlock.to[0] = currentModelBlock.from[0] + Integer.parseInt(cubeSizeX.getText());
         currentModelBlock.to[1] = currentModelBlock.from[1] + Integer.parseInt(cubeSizeY.getText());
         currentModelBlock.to[2] = currentModelBlock.from[2] + Integer.parseInt(cubeSizeZ.getText());
+
+        viewRecreate();
+    }
+
+    private void viewRecreate(){
+        modelViewMain.rebuildFromDataModel(currentModel);
+        modelViewXY.rebuildFromDataModel(currentModel);
+        modelViewYZ.rebuildFromDataModel(currentModel);
+        modelViewXZ.rebuildFromDataModel(currentModel);
+    }
+    private void viewUpdate(){
+        modelViewMain.updateDataFromModel(currentModel);
+        modelViewXY.updateDataFromModel(currentModel);
+        modelViewYZ.updateDataFromModel(currentModel);
+        modelViewXZ.updateDataFromModel(currentModel);
+    }
+    private void viewUpdateTex(){
+        modelViewMain.updateTexFromModel(currentModelBlock);
+        modelViewXY.updateTexFromModel(currentModelBlock);
+        modelViewYZ.updateTexFromModel(currentModelBlock);
+        modelViewXZ.updateTexFromModel(currentModelBlock);
+    }
+    private void viewUpdateTexRotation(){
+        modelViewMain.updateTexRotation(currentModelBlock);
+        modelViewXY.updateTexRotation(currentModelBlock);
+        modelViewYZ.updateTexRotation(currentModelBlock);
+        modelViewXZ.updateTexRotation(currentModelBlock);
     }
 
     private void updateBlockInfo() {
@@ -302,8 +338,10 @@ public class CModelMaker extends Application{
         sideTextureRotation.getSelectionModel().selectFirst();
         sideTextureRotation.getSelectionModel().select(new Integer(face.rotation));
 
-        sideTexture.getSelectionModel().selectFirst();
+        String current = face.texture;
+        sideTexture.getSelectionModel().clearSelection();
         sideTexture.getSelectionModel().select(Texture.get(face.texture));
+        face.texture = current;
 
         uvChange(0,  0);
         uvChange(1,  0);
@@ -327,6 +365,7 @@ public class CModelMaker extends Application{
             Canvas canvas = canvasMap.get(face);
             GraphicsContext context = canvas.getGraphicsContext2D();
 
+
             if(currentModelBlock == null || currentModelBlock.faces.get(face.toString().toLowerCase()).texture == null){
                 context.setFill( faceColor.get(face) );
                 context.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -345,10 +384,10 @@ public class CModelMaker extends Application{
                 if(image != null){
                     context.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
 
-                    double x0 = mface.uv[0]/16;
-                    double y0 = mface.uv[1]/16;
-                    double x1 = mface.uv[2]/16;
-                    double y1 = mface.uv[3]/16;
+                    double x0 = mface.uv[0]/16d;
+                    double y0 = mface.uv[1]/16d;
+                    double x1 = mface.uv[2]/16d;
+                    double y1 = mface.uv[3]/16d;
 
                     if(x0 > x1){
                         double temp = x0;
@@ -362,7 +401,7 @@ public class CModelMaker extends Application{
                     }
                     context.setStroke(Color.BLACK);
                     context.setLineWidth(1.5);
-                    context.strokeRect(x0*canvas.getWidth()-1.5, y0*canvas.getHeight()-1.5, (x1-x0)*canvas.getHeight()+3, (y1-y0)*canvas.getWidth()+3);
+                    context.strokeRect(x0*canvas.getWidth()-1.5, y0*canvas.getHeight()-1.5, (x1-x0)*canvas.getWidth()+3, (y1-y0)*canvas.getHeight()+3);
 
                 }
 
@@ -398,7 +437,7 @@ public class CModelMaker extends Application{
             currentModel = DataModel.load(file);
             cubeList.getItems().clear();
             currentModel.elements.forEach(cubeList.getItems()::add);
-
+            viewRecreate();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -409,9 +448,7 @@ public class CModelMaker extends Application{
     }
 
     @FXML private Pane viewMainPane;
-    @FXML private PerspectiveCamera viewMainCam;
-    @FXML private Group viewMain;
-    @FXML private SubScene viewMainScene;
+
 
     @FXML private Pane wrapperNorth;
     @FXML private Pane wrapperEast;
@@ -452,22 +489,56 @@ public class CModelMaker extends Application{
     @FXML private TextField uvy0;
     @FXML private TextField uvy1;
 
-    /** real dirty part, i'm sorry for that */
-    @FXML public void onAddSizeX(){if(currentModelBlock==null){return;} cubeSizeX.setText((++currentModelBlock.to[0] - currentModelBlock.from[0])+"");}
-    @FXML public void onAddSizeY(){if(currentModelBlock==null){return;} cubeSizeY.setText((++currentModelBlock.to[1] - currentModelBlock.from[1])+"");}
-    @FXML public void onAddSizeZ(){if(currentModelBlock==null){return;} cubeSizeZ.setText((++currentModelBlock.to[2] - currentModelBlock.from[2])+"");}
+    @FXML public void onAddSizeX(){changeSize(0, 1);}
+    @FXML public void onAddSizeY(){changeSize(1, 1);}
+    @FXML public void onAddSizeZ(){changeSize(2, 1);}
 
-    @FXML public void onAddPosX(){if(currentModelBlock==null){return;} cubePositionX.setText(++currentModelBlock.from[0]+"");}
-    @FXML public void onAddPosY(){if(currentModelBlock==null){return;} cubePositionY.setText(++currentModelBlock.from[1]+"");}
-    @FXML public void onAddPosZ(){if(currentModelBlock==null){return;} cubePositionZ.setText(++currentModelBlock.from[2]+"");}
+    @FXML public void onAddPosX(){changePos(0, 1);}
+    @FXML public void onAddPosY(){changePos(1, 1);}
+    @FXML public void onAddPosZ(){changePos(2, 1);}
 
-    @FXML public void onRemSizeX(){if(currentModelBlock==null){return;} cubeSizeX.setText((--currentModelBlock.to[0] - currentModelBlock.from[0])+"");}
-    @FXML public void onRemSizeY(){if(currentModelBlock==null){return;} cubeSizeY.setText((--currentModelBlock.to[1] - currentModelBlock.from[1])+"");}
-    @FXML public void onRemSizeZ(){if(currentModelBlock==null){return;} cubeSizeZ.setText((--currentModelBlock.to[2] - currentModelBlock.from[2])+"");}
+    @FXML public void onRemSizeX(){changeSize(0, -1);}
+    @FXML public void onRemSizeY(){changeSize(1, -1);}
+    @FXML public void onRemSizeZ(){changeSize(2, -1);}
 
-    @FXML public void onRemPosX(){if(currentModelBlock==null){return;} cubePositionX.setText(--currentModelBlock.from[0]+"");}
-    @FXML public void onRemPosY(){if(currentModelBlock==null){return;} cubePositionY.setText(--currentModelBlock.from[1]+"");}
-    @FXML public void onRemPosZ(){if(currentModelBlock==null){return;} cubePositionZ.setText(--currentModelBlock.from[2]+"");}
+    @FXML public void onRemPosX(){changePos(0, -1);}
+    @FXML public void onRemPosY(){changePos(1, -1);}
+    @FXML public void onRemPosZ(){changePos(2, -1);}
+
+    public void changeSize(int batch, int delta){
+        if(currentModelBlock==null){
+            return;
+        }
+        currentModelBlock.to[batch] += delta;
+
+        if(batch == 0){
+            cubeSizeX.setText(""+ currentModelBlock.getSizeX());
+        }else if(batch == 1){
+            cubeSizeY.setText(""+ currentModelBlock.getSizeY());
+        }else if(batch == 2){
+            cubeSizeZ.setText(""+ currentModelBlock.getSizeZ());
+        }
+
+        viewUpdate();
+    }
+
+    public void changePos(int batch, int delta){
+        if(currentModelBlock==null){
+            return;
+        }
+        currentModelBlock.to[batch] += delta;
+        currentModelBlock.from[batch] += delta;
+
+        if(batch == 0){
+            cubePositionX.setText(""+ currentModelBlock.from[batch]);
+        }else if(batch == 1){
+            cubePositionY.setText(""+ currentModelBlock.from[batch]);
+        }else if(batch == 2){
+            cubePositionZ.setText(""+ currentModelBlock.from[batch]);
+        }
+
+        viewUpdate();
+    }
 
     @FXML public void onCubeCopy(){
         if(currentModelBlock == null){
@@ -477,6 +548,7 @@ public class CModelMaker extends Application{
         cubeList.getItems().add(copy);
         currentModel.elements.add(copy);
         updateTexturePreview();
+        viewRecreate();
     }
     @FXML public void onCubeRemove(){
         if(currentModelBlock == null){
@@ -487,11 +559,13 @@ public class CModelMaker extends Application{
         cubeList.getSelectionModel().clearSelection();
         currentModelBlock = null;
         updateTexturePreview();
+        viewRecreate();
     }
     @FXML public void onCubeAdd(){
         DataModelBlock block = new DataModelBlock();
         currentModel.elements.add(block);
         cubeList.getItems().add(block);
+        viewRecreate();
     }
 
     @FXML public void onUVx0Add(){uvChange(0,  1);}
@@ -529,6 +603,7 @@ public class CModelMaker extends Application{
         field.setText( value%10==0 ? Integer.toString(value/10) : Double.toString(face.uv[batch]));
 
         updateTexturePreview();
+        viewUpdateTex();
 
     }
 }
