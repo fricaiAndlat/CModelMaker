@@ -74,12 +74,12 @@
                         <Pane fx:id="viewXZ" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="NEVER" />
                      </children>
                   </HBox>
-                  <Pane prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                  <Pane fx:id="viewMainPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                      <children>
                         <Group fx:id="viewMain">
                            <children>
                               <PerspectiveCamera fx:id="viewMainCam" />
-                              <SubScene height="200.0" width="200.0">
+                              <SubScene fx:id="viewMainScene" fill="BLACK" height="200.0" opacity="0.0" width="200.0">
                                 <root>
                                   <Region />
                                 </root>

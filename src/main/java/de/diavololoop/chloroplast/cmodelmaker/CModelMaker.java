@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
+import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -133,7 +134,7 @@ public class CModelMaker extends Application{
         sideTexture.getItems().add(Texture.NONE);
         sideTextureRotation.getItems().addAll(new Integer(0), new Integer(90), new Integer(180), new Integer(270));
 
-        ModelViewer modelviewXY = new ModelViewer(viewMain, viewMainCam);
+        ModelViewer modelViewMain = new ModelViewer(viewMain, viewMainPane);
 
     }
 
@@ -151,6 +152,9 @@ public class CModelMaker extends Application{
 
             //pane.setBackground(new Background(new BackgroundFill(Color.color(Math.random(), Math.random(), Math.random()), null, null)));
         }
+
+        viewMainScene.heightProperty().bind(viewMainPane.heightProperty());
+        viewMainScene.widthProperty().bind(viewMainPane.widthProperty());
 
         viewXY.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, BorderWidths.DEFAULT)));
         viewYZ.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, BorderWidths.DEFAULT)));
@@ -404,9 +408,10 @@ public class CModelMaker extends Application{
 
     }
 
+    @FXML private Pane viewMainPane;
     @FXML private PerspectiveCamera viewMainCam;
-
     @FXML private Group viewMain;
+    @FXML private SubScene viewMainScene;
 
     @FXML private Pane wrapperNorth;
     @FXML private Pane wrapperEast;
