@@ -38,18 +38,20 @@ public class MeshBlock extends Group {
         meshViews.forEach(  (face, view) -> view.setCullFace(CullFace.BACK));
 
         Rotate rotateNorth = new Rotate(180, 0.5, 0.5, 0.5, new Point3D(0, 1, 0));
-        Rotate rotateEast  = new Rotate( 90, 0.5, 0.5, 0.5, new Point3D(0, 1, 0));
+        Rotate rotateEast  = new Rotate(-90, 0.5, 0.5, 0.5, new Point3D(0, 1, 0));
         Rotate rotateSouth = new Rotate(  0, 0.5, 0.5, 0.5, new Point3D(0, 1, 0));
-        Rotate rotateWest  = new Rotate(-90, 0.5, 0.5, 0.5, new Point3D(0, 1, 0));
-        Rotate rotateDown  = new Rotate(-90, 0.5, 0.5, 0.5, new Point3D(1, 0, 0));
-        Rotate rotateUp    = new Rotate( 90, 0.5, 0.5, 0.5, new Point3D(1, 0, 0));
+        Rotate rotateWest  = new Rotate( 90, 0.5, 0.5, 0.5, new Point3D(0, 1, 0));
+        Rotate rotateDown  = new Rotate( 90, 0.5, 0.5, 0.5, new Point3D(1, 0, 0));
+        Rotate rotateUp    = new Rotate(-90, 0.5, 0.5, 0.5, new Point3D(1, 0, 0));
 
-        meshViews.get(CModelMaker.FACING.NORTH).getTransforms().add(rotateNorth);
-        meshViews.get(CModelMaker.FACING.EAST) .getTransforms().add(rotateEast);
-        meshViews.get(CModelMaker.FACING.SOUTH).getTransforms().add(rotateSouth);
-        meshViews.get(CModelMaker.FACING.WEST) .getTransforms().add(rotateWest);
-        meshViews.get(CModelMaker.FACING.UP)   .getTransforms().add(rotateUp);
-        meshViews.get(CModelMaker.FACING.DOWN) .getTransforms().add(rotateDown);
+        Rotate rotateY180 = new Rotate(180, 0.5, 0.5, 0.5, new Point3D(0, 1, 0));
+
+        meshViews.get(CModelMaker.FACING.NORTH).getTransforms().addAll(rotateNorth, rotateY180);
+        meshViews.get(CModelMaker.FACING.EAST) .getTransforms().addAll(rotateEast,  rotateY180);
+        meshViews.get(CModelMaker.FACING.SOUTH).getTransforms().addAll(rotateSouth, rotateY180);
+        meshViews.get(CModelMaker.FACING.WEST) .getTransforms().addAll(rotateWest,  rotateY180);
+        meshViews.get(CModelMaker.FACING.UP)   .getTransforms().addAll(rotateUp,    rotateY180);
+        meshViews.get(CModelMaker.FACING.DOWN) .getTransforms().addAll(rotateDown,  rotateY180);
 
         this.getChildren().addAll(meshViews.values());
     }
@@ -105,11 +107,7 @@ public class MeshBlock extends Group {
 
     public void updateTexture(DataModelBlock modelBlock){
 
-        //System.out.println("updateing textures:");
-
         for(CModelMaker.FACING face : CModelMaker.FACING.values()){
-
-            //System.out.println("\tprocessing "+face);
 
             DataModelFace blockFace = modelBlock.faces.get(face.toString().toLowerCase());
             PhongMaterial material = new PhongMaterial();
@@ -117,15 +115,12 @@ public class MeshBlock extends Group {
             if(blockFace == null){
                 blockFace = new DataModelFace();
                 modelBlock.faces.put(face.toString().toLowerCase(), blockFace);
-                //System.out.println("\t(!) blockface is null, creating one");
             }
 
             Texture texture = Texture.get(blockFace.texture);
 
             if(blockFace.texture == null || texture == null|| texture == Texture.NONE){
                 material.setDiffuseColor(CModelMaker.faceColor.get(face));
-                //System.out.println("\t(!) either texture is null or not known, set to diffuse color");
-                //System.out.printf("\tblock.texture: %b, texture: %b, texture=none: %b\r\n", blockFace.texture == null, texture == null, texture == Texture.NONE);
             }
 
             if(texture.getImage() != null){
@@ -142,12 +137,6 @@ public class MeshBlock extends Group {
 
 
             meshViews.get(face).setMaterial(material);
-
-            /*System.out.println("\t texcoords are:");
-            System.out.printf("\t\t%f\t%f\r\n",texCoords[0],texCoords[1]);
-            System.out.printf("\t\t%f\t%f\r\n",texCoords[2],texCoords[3]);
-            System.out.printf("\t\t%f\t%f\r\n",texCoords[4],texCoords[5]);
-            System.out.printf("\t\t%f\t%f\r\n",texCoords[6],texCoords[7]);*/
 
 
         }

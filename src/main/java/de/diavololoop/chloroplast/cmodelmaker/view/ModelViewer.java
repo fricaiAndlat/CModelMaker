@@ -7,8 +7,10 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.effect.BlendMode;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.CullFace;
@@ -57,11 +59,11 @@ public class ModelViewer {
                 lastMouseX = event.getX();
                 lastMouseY = event.getY();
 
-                double ctx = cameraTurnX.get() - dy/2;
+                double ctx = cameraTurnX.get() - dy/4;
                 ctx = Math.max(ctx, -90);
                 ctx = Math.min(ctx, 90);
 
-                cameraTurnY.set(cameraTurnY.get() - dx/2);
+                cameraTurnY.set(cameraTurnY.get() - dx/4);
                 cameraTurnX.set(ctx);
             });
         }else if(t == Target.YZ){
@@ -114,13 +116,20 @@ public class ModelViewer {
 
         Group axis;
         if(t == Target.MODEL){
-            axis = buildAxes(0.1, 0.04);
+            axis = buildAxes(0.1, 0.04, t);
         }else {
-            axis = buildAxes(0.2, 0.1);
+            axis = buildAxes(0.2, 0.1, t);
         }
 
+        Node dirNorth = buildNorthArrow();
 
-        root3D.getChildren().addAll(models, axis);
+        PointLight light = new PointLight();
+        light.setTranslateX(8);
+        light.setTranslateY(8);
+        AmbientLight lightAmbient = new AmbientLight();
+
+
+        root3D.getChildren().addAll(models, axis, dirNorth, light, lightAmbient);
 
 
         scene = new SubScene(root3D, 800, 800, true, SceneAntialiasing.BALANCED);
@@ -140,10 +149,31 @@ public class ModelViewer {
         scene.widthProperty().bind(viewMainPane.widthProperty());
         scene.heightProperty().bind(viewMainPane.heightProperty());
 
+        //viewMainPane.minHeightProperty().bind(viewMainPane.widthProperty().divide(1.5));
+        //viewMainPane.prefHeightProperty().bind(viewMainPane.widthProperty().divide(1.5));
         viewMainPane.getChildren().add(scene);
     }
 
-    private Group buildAxes(double size, double minSize){
+    private Node buildNorthArrow() {
+        ModelMesh mesh = new ModelMesh();
+        MeshView meshView = new MeshView(mesh);
+        PhongMaterial materialArrow = new PhongMaterial();
+
+        materialArrow.setDiffuseMap(new Image(ModelViewer.class.getResourceAsStream("../../../../../gui/dirNorth.png")));
+
+        meshView.setMaterial(materialArrow);
+        meshView.setScaleX(4);
+        meshView.setScaleY(4);
+        meshView.setRotationAxis(new Point3D(1, 0, 0));
+        meshView.setRotate(90);
+        meshView.setTranslateX(8);
+        meshView.setTranslateY(-0.5);
+        meshView.setTranslateZ(-2);
+
+        return meshView;
+    }
+
+    private Group buildAxes(double size, double minSize, Target t) {
         PhongMaterial materialRed = new PhongMaterial();
         materialRed.setDiffuseColor(Color.RED);
 
@@ -170,6 +200,50 @@ public class ModelViewer {
 
         PhongMaterial materialGray = new PhongMaterial();
         materialGray.setDiffuseColor(Color.GRAY);
+
+        //YZ
+        if (t == Target.YZ){
+            for (int i = 1; i < 16; ++i) {
+                Box subAxe = new Box(minSize, 16, minSize);
+                subAxe.setMaterial(materialGray);
+                subAxe.setTranslateX(16);
+                subAxe.setTranslateY(8);
+                subAxe.setTranslateZ(i);
+                axis.getChildren().add(subAxe);
+
+            }
+            for (int i = 1; i < 16; ++i) {
+                Box subAxe = new Box(minSize, minSize, 16);
+                subAxe.setMaterial(materialGray);
+                subAxe.setTranslateX(16);
+                subAxe.setTranslateY(i);
+                subAxe.setTranslateZ(8);
+                axis.getChildren().add(subAxe);
+
+            }
+        }
+        //XY
+        if (t == Target.XY){
+            for (int i = 1; i < 16; ++i) {
+                Box subAxe = new Box(16, minSize, minSize);
+                subAxe.setMaterial(materialGray);
+                subAxe.setTranslateX(8);
+                subAxe.setTranslateY(i);
+                subAxe.setTranslateZ(16);
+                axis.getChildren().add(subAxe);
+
+            }
+            for (int i = 1; i < 16; ++i) {
+                Box subAxe = new Box(minSize, 16, minSize);
+                subAxe.setMaterial(materialGray);
+                subAxe.setTranslateX(i);
+                subAxe.setTranslateY(8);
+                subAxe.setTranslateZ(16);
+                axis.getChildren().add(subAxe);
+
+            }
+        }
+        //XZ
         for(int i = 1; i < 16; ++i){
             Box subAxe = new Box(16, minSize, minSize);
             subAxe.setMaterial(materialGray);
@@ -199,7 +273,9 @@ public class ModelViewer {
             mesh.setScaleY(model.getSizeY());
             mesh.setScaleZ(model.getSizeZ());
 
-            mesh.setTranslateX(model.from[0] + model.getSizeX()/2d - 0.5);
+            //  transform because in minecraft 0,0,0 is lower,front,right seeing it from north
+            //  i have no idea why they do this
+            mesh.setTranslateX(15 - (model.from[0] + model.getSizeX()/2d - 0.5));
             mesh.setTranslateY(model.from[1] + model.getSizeY()/2d - 0.5);
             mesh.setTranslateZ(model.from[2] + model.getSizeZ()/2d - 0.5);
 

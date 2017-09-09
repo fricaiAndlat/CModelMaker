@@ -61,18 +61,33 @@
                </children>
             </VBox>
             <Separator orientation="VERTICAL" prefHeight="200.0" HBox.hgrow="NEVER" />
-            <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+            <GridPane style="--fx-background-color: BLACK;" HBox.hgrow="ALWAYS">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints halignment="CENTER" hgrow="NEVER" minWidth="10.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints maxHeight="1.7976931348623157E308" vgrow="NEVER" />
+                <RowConstraints vgrow="NEVER" />
+                  <RowConstraints minHeight="10.0" vgrow="NEVER" />
+                  <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="30.0" valignment="TOP" vgrow="ALWAYS" />
+              </rowConstraints>
                <children>
-                  <HBox prefHeight="100.0" prefWidth="200.0" VBox.vgrow="NEVER">
-                     <children>
-                        <Pane fx:id="viewXY" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="NEVER" />
-                        <Pane fx:id="viewYZ" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="NEVER" />
-                        <Pane fx:id="viewXZ" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="NEVER" />
-                     </children>
-                  </HBox>
-                  <Pane fx:id="viewMainPane" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                  <Pane fx:id="viewXY" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="100.0" prefHeight="200.0" prefWidth="100.0" />
+                  <Pane fx:id="viewXZ" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="100.0" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="2" />
+                  <Pane fx:id="viewYZ" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="100.0" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="4" />
+                  <Pane fx:id="viewMainPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="5" GridPane.rowIndex="3" />
+                  <Label text="Front (XY)" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                  <Label text="Top (XZ)" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                  <Label text="Side (YZ)" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                  <Separator prefWidth="200.0" GridPane.columnSpan="5" GridPane.rowIndex="2" />
+                  <Separator minHeight="2.0" orientation="VERTICAL" prefHeight="2.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowSpan="2" />
+                  <Separator minHeight="2.0" orientation="VERTICAL" prefHeight="2.0" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowSpan="2" />
                </children>
-            </VBox>
+            </GridPane>
             <Separator orientation="VERTICAL" prefHeight="200.0" HBox.hgrow="NEVER" />
             <VBox HBox.hgrow="NEVER">
                <children>
@@ -108,7 +123,7 @@
                         <ListView fx:id="cubeList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="150.0" />
                      </content>
                   </ScrollPane>
-                  <TabPane prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="SOMETIMES">
+                  <TabPane minWidth="120.0" prefWidth="120.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="SOMETIMES">
                      <tabs>
                         <Tab closable="false" text="Faces">
                            <content>
