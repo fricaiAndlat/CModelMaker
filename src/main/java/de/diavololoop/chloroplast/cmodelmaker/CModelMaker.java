@@ -7,6 +7,7 @@ import de.diavololoop.chloroplast.cmodelmaker.view.ModelViewer;
 import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -507,6 +508,9 @@ public class CModelMaker extends Application{
 
         viewUpdate();
     }
+
+    @FXML private Parent containerModeling;
+    @FXML private Parent containerGrouping;
 
     @FXML private Pane wrapperNorth;
     @FXML private Pane wrapperEast;
