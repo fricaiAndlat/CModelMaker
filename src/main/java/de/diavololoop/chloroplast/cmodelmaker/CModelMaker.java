@@ -155,8 +155,6 @@ public class CModelMaker extends Application{
 
             pane.minWidthProperty().bind(root.heightProperty().divide(6));
             pane.prefWidthProperty().bind(root.heightProperty().divide(6));
-
-            //pane.setBackground(new Background(new BackgroundFill(Color.color(Math.random(), Math.random(), Math.random()), null, null)));
         }
 
         viewXY.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, BorderWidths.DEFAULT)));
@@ -447,8 +445,68 @@ public class CModelMaker extends Application{
 
     }
 
-    @FXML private Pane viewMainPane;
+    public void uvChange(int batch, int delta){
+        if(currentModelBlock==null){
+            return;
+        }
 
+        FACING f = sideMenu.getSelectionModel().getSelectedItem();
+        DataModelFace face = currentModelBlock.faces.get(f.toString().toLowerCase());
+        TextField field;
+        if(batch == 0){
+            field = uvx0;
+        }else if(batch == 1){
+            field = uvy0;
+        }else if(batch == 2){
+            field = uvx1;
+        }else{
+            field = uvy1;
+        }
+
+        face.uv[batch] += delta;
+
+        int value = (int)(face.uv[batch] * 10);
+
+        field.setText( value%10==0 ? Integer.toString(value/10) : Double.toString(face.uv[batch]));
+
+        updateTexturePreview();
+        viewUpdateTex();
+    }
+
+    public void changeSize(int batch, int delta){
+        if(currentModelBlock==null){
+            return;
+        }
+        currentModelBlock.to[batch] += delta;
+
+        if(batch == 0){
+            cubeSizeX.setText(""+ currentModelBlock.getSizeX());
+        }else if(batch == 1){
+            cubeSizeY.setText(""+ currentModelBlock.getSizeY());
+        }else if(batch == 2){
+            cubeSizeZ.setText(""+ currentModelBlock.getSizeZ());
+        }
+
+        viewUpdate();
+    }
+
+    public void changePos(int batch, int delta){
+        if(currentModelBlock==null){
+            return;
+        }
+        currentModelBlock.to[batch] += delta;
+        currentModelBlock.from[batch] += delta;
+
+        if(batch == 0){
+            cubePositionX.setText(""+ currentModelBlock.from[batch]);
+        }else if(batch == 1){
+            cubePositionY.setText(""+ currentModelBlock.from[batch]);
+        }else if(batch == 2){
+            cubePositionZ.setText(""+ currentModelBlock.from[batch]);
+        }
+
+        viewUpdate();
+    }
 
     @FXML private Pane wrapperNorth;
     @FXML private Pane wrapperEast;
@@ -467,6 +525,7 @@ public class CModelMaker extends Application{
     @FXML private Pane viewXY;
     @FXML private Pane viewYZ;
     @FXML private Pane viewXZ;
+    @FXML private Pane viewMainPane;
 
     @FXML private ListView<DataModelBlock> cubeList;
 
@@ -504,41 +563,6 @@ public class CModelMaker extends Application{
     @FXML public void onRemPosX(){changePos(0, -1);}
     @FXML public void onRemPosY(){changePos(1, -1);}
     @FXML public void onRemPosZ(){changePos(2, -1);}
-
-    public void changeSize(int batch, int delta){
-        if(currentModelBlock==null){
-            return;
-        }
-        currentModelBlock.to[batch] += delta;
-
-        if(batch == 0){
-            cubeSizeX.setText(""+ currentModelBlock.getSizeX());
-        }else if(batch == 1){
-            cubeSizeY.setText(""+ currentModelBlock.getSizeY());
-        }else if(batch == 2){
-            cubeSizeZ.setText(""+ currentModelBlock.getSizeZ());
-        }
-
-        viewUpdate();
-    }
-
-    public void changePos(int batch, int delta){
-        if(currentModelBlock==null){
-            return;
-        }
-        currentModelBlock.to[batch] += delta;
-        currentModelBlock.from[batch] += delta;
-
-        if(batch == 0){
-            cubePositionX.setText(""+ currentModelBlock.from[batch]);
-        }else if(batch == 1){
-            cubePositionY.setText(""+ currentModelBlock.from[batch]);
-        }else if(batch == 2){
-            cubePositionZ.setText(""+ currentModelBlock.from[batch]);
-        }
-
-        viewUpdate();
-    }
 
     @FXML public void onCubeCopy(){
         if(currentModelBlock == null){
@@ -578,32 +602,4 @@ public class CModelMaker extends Application{
     @FXML public void onUVx1Rem(){uvChange(2, -1);}
     @FXML public void onUVy1Rem(){uvChange(3, -1);}
 
-    public void uvChange(int batch, int delta){
-        if(currentModelBlock==null){
-            return;
-        }
-
-        FACING f = sideMenu.getSelectionModel().getSelectedItem();
-        DataModelFace face = currentModelBlock.faces.get(f.toString().toLowerCase());
-        TextField field;
-        if(batch == 0){
-            field = uvx0;
-        }else if(batch == 1){
-            field = uvy0;
-        }else if(batch == 2){
-            field = uvx1;
-        }else{
-            field = uvy1;
-        }
-
-        face.uv[batch] += delta;
-
-        int value = (int)(face.uv[batch] * 10);
-
-        field.setText( value%10==0 ? Integer.toString(value/10) : Double.toString(face.uv[batch]));
-
-        updateTexturePreview();
-        viewUpdateTex();
-
-    }
 }
