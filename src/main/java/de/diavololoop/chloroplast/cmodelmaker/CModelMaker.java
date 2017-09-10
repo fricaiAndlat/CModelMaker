@@ -151,6 +151,8 @@ public class CModelMaker extends Application{
         modelViewYZ   = new ModelViewer(viewYZ, ModelViewer.Target.YZ);
         modelViewXZ   = new ModelViewer(viewXZ, ModelViewer.Target.XZ);
 
+
+
     }
 
     private void linkFields(){
@@ -177,9 +179,6 @@ public class CModelMaker extends Application{
         cubeList.getSelectionModel().selectedItemProperty().addListener((observable, o, t1) -> {
 
             if(t1 == null)return;
-
-            System.out.println("selected: "+t1.toString());
-            System.out.println("map: "+ Arrays.toString(project.minecraftModel.elements.stream().map(e -> e.name).collect(Collectors.toList()).toArray()));
 
             Optional<DataModelBlock> block = project.minecraftModel.elements.stream().filter(element -> element.name.equals(t1.toString())).findAny();
             if(block.isPresent()){
@@ -218,6 +217,9 @@ public class CModelMaker extends Application{
 
         cubeName.setOnAction(event -> renameCurrent(cubeName.getText()));
         cubeName.focusedProperty().addListener(prop ->  renameCurrent(cubeName.getText()));
+
+        cubeGroup.setOnAction(event -> project.groups.put(cubeName.getText(), cubeGroup.getText()));
+        cubeGroup.focusedProperty().addListener(prop -> project.groups.put(cubeName.getText(), cubeGroup.getText()));
 
         sideMenu.getSelectionModel().selectedItemProperty().addListener((observable, o, t1) -> {
             updateTexturePreview();
@@ -349,7 +351,8 @@ public class CModelMaker extends Application{
         cubePositionZ.setText(""+currentModelBlock.from[2]);
 
         cubeName.setText(currentModelBlock.name);
-        cubeGroup.setText("TODO");
+        String g = project.groups.get(currentModelBlock.name);
+        cubeGroup.setText(g==null ? "":g);
 
         String side = sideMenu.getSelectionModel().getSelectedItem().toString().toLowerCase();
         DataModelFace face = currentModelBlock.faces.get(side);
@@ -598,6 +601,24 @@ public class CModelMaker extends Application{
         project.minecraftModel.elements.add(block);
         cubeList.getItems().add(block);
         viewRecreate();
+    }
+
+    @FXML
+    public void cubeListSort(){
+        cubeList.getItems().sort( (a, b) -> {
+
+            String groupA = project.groups.get(a.name);
+            String groupB = project.groups.get(b.name);
+
+            int result = (groupA==null ? "":groupA).compareTo(groupB==null ? "":groupB);
+
+            if(result == 0){
+                return  a.name.compareTo(b.name);
+            }
+
+            return result;
+
+        });
     }
 
     @FXML public void onUVx0Add(){uvChange(0,  1);}

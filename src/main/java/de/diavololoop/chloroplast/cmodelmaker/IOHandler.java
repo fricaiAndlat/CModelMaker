@@ -160,8 +160,6 @@ public class IOHandler {
             Set<String> knownNames = new HashSet<>();
             project.minecraftModel.elements.forEach(dmBlock -> {
 
-                System.out.println("loaded element: "+dmBlock.name);
-
                 if(knownNames.contains(dmBlock.name)){
                     dmBlock.name = ""+System.nanoTime();
                 }

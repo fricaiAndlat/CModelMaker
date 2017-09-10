@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Created by Chloroplast on 05.09.17.
  */
-public class DataModelBlock {
+public class DataModelBlock{
 
     public DataModelBlock(){
         name = System.nanoTime() + "";
