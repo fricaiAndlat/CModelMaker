@@ -50,6 +50,24 @@ public class Texture {
 
     }
 
+    public Texture(String regName, String fileName, Image image) {
+
+        this.name = fileName;
+        this.image = image;
+
+        w = (int)image.getWidth();
+        h = (int)image.getHeight();
+
+        registerName = regName;
+
+        if(IMAGES.containsKey(regName)){
+            throw new IllegalArgumentException("image register name does already exists");
+        }
+
+        IMAGES.put(registerName, this);
+
+    }
+
     public Image getImage(){
         return image;
     }
@@ -80,4 +98,7 @@ public class Texture {
         return result==null ? Texture.NONE : result;
     }
 
+    public static void clear() {
+        IMAGES.clear();
+    }
 }

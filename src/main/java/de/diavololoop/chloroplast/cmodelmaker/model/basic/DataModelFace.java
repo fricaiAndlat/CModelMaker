@@ -1,4 +1,4 @@
-package de.diavololoop.chloroplast.cmodelmaker.model;
+package de.diavololoop.chloroplast.cmodelmaker.model.basic;
 
 /**
  * Created by Chloroplast on 05.09.17.

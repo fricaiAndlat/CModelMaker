@@ -1,8 +1,9 @@
 package de.diavololoop.chloroplast.cmodelmaker;
 
-import de.diavololoop.chloroplast.cmodelmaker.model.DataModel;
-import de.diavololoop.chloroplast.cmodelmaker.model.DataModelBlock;
-import de.diavololoop.chloroplast.cmodelmaker.model.DataModelFace;
+import de.diavololoop.chloroplast.cmodelmaker.model.Project;
+import de.diavololoop.chloroplast.cmodelmaker.model.basic.DataModel;
+import de.diavololoop.chloroplast.cmodelmaker.model.basic.DataModelBlock;
+import de.diavololoop.chloroplast.cmodelmaker.model.basic.DataModelFace;
 import de.diavololoop.chloroplast.cmodelmaker.view.ModelViewer;
 import javafx.application.Application;
 import javafx.fxml.FXML;
@@ -19,9 +20,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by gast2 on 05.09.17.
@@ -46,11 +49,14 @@ public class CModelMaker extends Application{
         root = loader.load(CModelMaker.class.getResourceAsStream("../../../../gui/gui.fxml"));
         root.setTop(getMenu(stage));
 
+        Scene scene = new Scene(root, 900, 600);
+
         initFields();
         linkFields();
         registerListeners();
 
-        Scene scene = new Scene(root, 900, 600);
+        ioHandler = new IOHandler(stage);
+
 
         stage.setTitle("CModelMaker by Chloroplast");
         stage.setScene(scene);
@@ -59,34 +65,32 @@ public class CModelMaker extends Application{
 
     public MenuBar getMenu(Stage stage) {
 
-        MenuItem menuItemNew  = new MenuItem("New");
-        MenuItem menuItemLoad = new MenuItem("Load Json");
-        MenuItem menuItemSave = new MenuItem("Save JSon");
-        MenuItem menuItemTexture = new MenuItem("ImportTexture");
-        MenuItem menuItemExit = new MenuItem("Exit");
+        Menu     menuFile               = new Menu("File");                 //  [File]
+        MenuItem menuFileNew            = new MenuItem("New");              //    |----- [New]
+        MenuItem menuFileLoad           = new MenuItem("Load Project");     //    |----- [Load Project]
+        MenuItem menuFileSave           = new MenuItem("Save Project");     //    |----- [Save Project]
+        Menu     menuFileExport         = new Menu("Export ...");           //    |----- [Export...]
+        MenuItem menuFileExportModel    = new MenuItem("Export Model");     //    |        |----- [Export Model]
+        MenuItem menuFileExportImages   = new MenuItem("Export Images");    //    |        |----- [Export Images]
+        Menu     menuFileImport         = new Menu("Import ...");           //    |----- [Import...]
+        MenuItem menuFileImportModel    = new MenuItem("Import Model");     //    |        |----- [Import Model]
+        MenuItem menuFileImportImage    = new MenuItem("Import Image");     //    |        |----- [ImportImage]
+        MenuItem menuFileExit           = new MenuItem("Exit");             //    |----- [Exit]
 
-        menuItemLoad.setOnAction(event -> {
-            FileChooser fc = new FileChooser();
-            load(fc.showOpenDialog(stage));
-        });
+        //listener
+        menuFileNew         .setOnAction(event -> load(new Project()));
+        menuFileLoad        .setOnAction(event -> ioHandler.loadProject(this::load));
+        menuFileSave        .setOnAction(event -> ioHandler.saveProject(project));
+        menuFileExportModel .setOnAction(event -> ioHandler.exportModel(project));
+        menuFileExportImages.setOnAction(event -> ioHandler.exportImages(project));
+        menuFileImportModel .setOnAction(event -> ioHandler.importModel(project, this::load));
+        menuFileImportImage .setOnAction(event -> ioHandler.importImage(project, this::loadTexture));
+        menuFileExit        .setOnAction(event -> ioHandler.promptExit());
 
-        menuItemSave.setOnAction(event -> {
-            FileChooser fc = new FileChooser();
-            save(fc.showSaveDialog(stage));
-        });
+        menuFileExport.getItems().addAll(menuFileExportModel, menuFileExportImages);
+        menuFileImport.getItems().addAll(menuFileImportModel, menuFileImportImage);
 
-        menuItemTexture.setOnAction(event -> {
-            FileChooser fc = new FileChooser();
-            sideTexture.getItems().add(new Texture(fc.showOpenDialog(stage)));
-        });
-
-        Menu menuFile = new Menu("File");
-        menuFile.getItems().add(menuItemNew);
-        menuFile.getItems().add(menuItemLoad);
-        menuFile.getItems().add(menuItemSave);
-        menuFile.getItems().add(menuItemTexture);
-        menuFile.getItems().add(menuItemExit);
-
+        menuFile.getItems().addAll(menuFileNew, menuFileLoad, menuFileSave, menuFileExport, menuFileImport, menuFileExit);
 
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().add(menuFile);
@@ -95,19 +99,23 @@ public class CModelMaker extends Application{
     }
 
 
-    BorderPane root;
+    private BorderPane root;
 
     public final Map <FACING, Pane> wrapperMap  = new HashMap<FACING, Pane>();
     public final Map <FACING, Canvas> canvasMap = new HashMap<FACING, Canvas>();
     public final static Map <FACING, Color> faceColor   = new HashMap<FACING, Color>();
 
-    DataModelBlock currentModelBlock;
-    DataModel      currentModel = new DataModel();
+    private ModelViewer modelViewMain;
+    private ModelViewer modelViewXY;
+    private ModelViewer modelViewYZ;
+    private ModelViewer modelViewXZ;
 
-    ModelViewer modelViewMain;
-    ModelViewer modelViewXY;
-    ModelViewer modelViewYZ;
-    ModelViewer modelViewXZ;
+    private DataModelBlock currentModelBlock;
+    private Project project = new Project();
+
+    private IOHandler ioHandler;
+
+
 
     private void initFields() {
 
@@ -166,18 +174,20 @@ public class CModelMaker extends Application{
 
     private void registerListeners(){
 
-        cubeList.getSelectionModel()
-                .selectedItemProperty().addListener((observable, o, t1) -> {
+        cubeList.getSelectionModel().selectedItemProperty().addListener((observable, o, t1) -> {
 
             if(t1 == null)return;
 
-            Optional<DataModelBlock> block = currentModel.elements.stream().filter(element -> element.name.equals(t1.toString())).findAny();
+            System.out.println("selected: "+t1.toString());
+            System.out.println("map: "+ Arrays.toString(project.minecraftModel.elements.stream().map(e -> e.name).collect(Collectors.toList()).toArray()));
+
+            Optional<DataModelBlock> block = project.minecraftModel.elements.stream().filter(element -> element.name.equals(t1.toString())).findAny();
             if(block.isPresent()){
                 currentModelBlock = block.get();
                 updateBlockInfo();
                 updateTexturePreview();
             }else{
-                System.err.println("block "+t1.toString()+"was not found in data. this should not happen");
+                System.err.println("block "+t1.toString()+" was not found in data. this should not happen");
             }
         });
 
@@ -294,24 +304,30 @@ public class CModelMaker extends Application{
     }
 
     private void viewRecreate(){
-        modelViewMain.rebuildFromDataModel(currentModel);
-        modelViewXY.rebuildFromDataModel(currentModel);
-        modelViewYZ.rebuildFromDataModel(currentModel);
-        modelViewXZ.rebuildFromDataModel(currentModel);
+        modelViewMain.rebuildFromDataModel(project.minecraftModel);
+        modelViewXY.rebuildFromDataModel(project.minecraftModel);
+        modelViewYZ.rebuildFromDataModel(project.minecraftModel);
+        modelViewXZ.rebuildFromDataModel(project.minecraftModel);
     }
     private void viewUpdate(){
-        modelViewMain.updateDataFromModel(currentModel);
-        modelViewXY.updateDataFromModel(currentModel);
-        modelViewYZ.updateDataFromModel(currentModel);
-        modelViewXZ.updateDataFromModel(currentModel);
+        modelViewMain.updateDataFromModel(project.minecraftModel);
+        modelViewXY.updateDataFromModel(project.minecraftModel);
+        modelViewYZ.updateDataFromModel(project.minecraftModel);
+        modelViewXZ.updateDataFromModel(project.minecraftModel);
     }
     private void viewUpdateTex(){
+        if(currentModelBlock == null){
+            return;
+        }
         modelViewMain.updateTexFromModel(currentModelBlock);
         modelViewXY.updateTexFromModel(currentModelBlock);
         modelViewYZ.updateTexFromModel(currentModelBlock);
         modelViewXZ.updateTexFromModel(currentModelBlock);
     }
     private void viewUpdateTexRotation(){
+        if(currentModelBlock == null){
+            return;
+        }
         modelViewMain.updateTexRotation(currentModelBlock);
         modelViewXY.updateTexRotation(currentModelBlock);
         modelViewYZ.updateTexRotation(currentModelBlock);
@@ -319,6 +335,10 @@ public class CModelMaker extends Application{
     }
 
     private void updateBlockInfo() {
+
+        if(currentModelBlock == null){
+            return;
+        }
 
         cubeSizeX.setText(""+(currentModelBlock.to[0] - currentModelBlock.from[0]));
         cubeSizeY.setText(""+(currentModelBlock.to[1] - currentModelBlock.from[1]));
@@ -408,41 +428,25 @@ public class CModelMaker extends Application{
             }
         }
     }
-    private void save(File file) {
-        if(file == null){
-            return;
-        }
 
-        try {
-
-            currentModel.textures.clear();
-            Texture.IMAGES.forEach(  (key,val) ->  currentModel.textures.put(val.registerName.substring(1), "blocks/"+val.name) );
-            currentModel.save(file);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage());
-            alert.showAndWait();
-        }
+    private void loadTexture(Texture texture){
+        sideTexture.getItems().add(texture);
+        viewUpdate();
+        updateTexturePreview();
+        updateBlockInfo();
     }
 
 
-    private void load(File file) {
-        if(file == null){
-            return;
-        }
+    private void load(Project project) {
 
-        try {
-            currentModel = DataModel.load(file);
-            cubeList.getItems().clear();
-            currentModel.elements.forEach(cubeList.getItems()::add);
-            viewRecreate();
+        this.project = project;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage());
-            alert.showAndWait();
-        }
+        cubeList.getItems().clear();
+        project.minecraftModel.elements.forEach(cubeList.getItems()::add);
+
+        project.textures.load();
+
+        viewRecreate();
 
     }
 
@@ -574,7 +578,7 @@ public class CModelMaker extends Application{
         }
         DataModelBlock copy = currentModelBlock.clone();
         cubeList.getItems().add(copy);
-        currentModel.elements.add(copy);
+        project.minecraftModel.elements.add(copy);
         updateTexturePreview();
         viewRecreate();
     }
@@ -582,7 +586,7 @@ public class CModelMaker extends Application{
         if(currentModelBlock == null){
             return;
         }
-        currentModel.elements.remove(currentModelBlock);
+        project.minecraftModel.elements.remove(currentModelBlock);
         cubeList.getItems().remove(cubeList.getSelectionModel().getSelectedItem());
         cubeList.getSelectionModel().clearSelection();
         currentModelBlock = null;
@@ -591,7 +595,7 @@ public class CModelMaker extends Application{
     }
     @FXML public void onCubeAdd(){
         DataModelBlock block = new DataModelBlock();
-        currentModel.elements.add(block);
+        project.minecraftModel.elements.add(block);
         cubeList.getItems().add(block);
         viewRecreate();
     }

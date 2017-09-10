@@ -2,13 +2,11 @@ package de.diavololoop.chloroplast.cmodelmaker.view;
 
 import de.diavololoop.chloroplast.cmodelmaker.CModelMaker;
 import de.diavololoop.chloroplast.cmodelmaker.Texture;
-import de.diavololoop.chloroplast.cmodelmaker.model.DataModelBlock;
-import de.diavololoop.chloroplast.cmodelmaker.model.DataModelFace;
-import javafx.beans.property.SimpleObjectProperty;
+import de.diavololoop.chloroplast.cmodelmaker.model.basic.DataModelBlock;
+import de.diavololoop.chloroplast.cmodelmaker.model.basic.DataModelFace;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;

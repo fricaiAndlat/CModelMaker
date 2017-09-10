@@ -1,4 +1,4 @@
-package de.diavololoop.chloroplast.cmodelmaker.model;
+package de.diavololoop.chloroplast.cmodelmaker.model.basic;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

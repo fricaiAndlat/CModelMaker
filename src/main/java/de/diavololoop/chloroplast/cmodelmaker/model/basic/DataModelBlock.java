@@ -1,4 +1,4 @@
-package de.diavololoop.chloroplast.cmodelmaker.model;
+package de.diavololoop.chloroplast.cmodelmaker.model.basic;
 
 import de.diavololoop.chloroplast.cmodelmaker.CModelMaker;
 

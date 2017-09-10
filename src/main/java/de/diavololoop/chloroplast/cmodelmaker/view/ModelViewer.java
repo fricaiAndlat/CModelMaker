@@ -1,8 +1,7 @@
 package de.diavololoop.chloroplast.cmodelmaker.view;
 
-import de.diavololoop.chloroplast.cmodelmaker.model.DataModel;
-import de.diavololoop.chloroplast.cmodelmaker.model.DataModelBlock;
-import javafx.beans.property.Property;
+import de.diavololoop.chloroplast.cmodelmaker.model.basic.DataModel;
+import de.diavololoop.chloroplast.cmodelmaker.model.basic.DataModelBlock;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
@@ -10,10 +9,8 @@ import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
-import javafx.scene.shape.CullFace;
 import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
